@@ -4,18 +4,19 @@ services:
   mongodb_ex2:
     image: mongo
     container_name: mongodb_ex2
-    # Sem a diretiva "ports" para não expor o Mongo ao exterior, conforme pede o enunciado
+    # REQUISITO 1: Sem a diretiva "ports" -> Invisível para o exterior, acessível apenas na rede interna
     volumes:
       - ../datasets:/docker-entrypoint-initdb.d
       - ../init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh
     environment:
       - MONGO_INITDB_DATABASE=leituras
-      - DATABASE=leituras 
+      - DATABASE=leituras
 
   api_leituras:
     build:
       context: ./
     container_name: api_leituras
+    # REQUISITO 2: API de dados exposta estritamente na porta 19020
     ports:
       - "19020:19020"
     environment:
@@ -25,6 +26,16 @@ services:
       - mongodb_ex2
     command: ["npm", "start"]
 
-networks:
-  default:
-    driver: bridge
+  frontend_nginx:
+    image: nginx:alpine
+    container_name: frontend_nginx
+    # REQUISITO 3: Servidor Nginx exposto na porta 19021
+    ports:
+      - "19021:19021"
+    volumes:
+      # Mapeia a pasta onde está o index.html para o diretório padrão do Nginx
+      - ./public:/usr/share/nginx/html
+      # Injeta a configuração personalizada do Nginx criada acima
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - api_leituras
