@@ -1,0 +1,352 @@
+openapi: 3.0.3
+info:
+  title: API de Dados - Jogos de Tabuleiro
+  description: API desenvolvida para o Exame de Engenharia Web para gestão e consulta de um catálogo de jogos de tabuleiro, autores e categorias.
+  version: 1.0.0
+servers:
+  - url: http://localhost:17000
+    description: Servidor de Dados Local (Porta 17000)
+
+paths:
+  /jogos:
+    get:
+      summary: Listar todos os jogos ou filtrar por editora
+      description: Retorna uma lista de jogos. Se o parâmetro `editora` for passado, retorna apenas id, name e year. Caso contrário, retorna a projeção padrão (id, name, year, category, minPlayers).
+      parameters:
+        - name: editora
+          in: query
+          description: Nome da editora para filtrar os jogos
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de jogos obtida com sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  oneOf:
+                    - $ref: '#/components/schemas/JogoListaPadrao'
+                    - $ref: '#/components/schemas/JogoListaEditora'
+        '500':
+          $ref: '#/components/responses/ErroInterno'
+
+    post:
+      summary: Registar um novo jogo de tabuleiro
+      description: Adiciona um novo documento de jogo de tabuleiro à base de dados.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JogoCompleto'
+      responses:
+        '201':
+          description: Jogo criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JogoCompleto'
+        '400':
+          description: Dados inválidos ou erro de validação do Mongoose
+        '500':
+          $ref: '#/components/responses/ErroInterno'
+
+  /jogos/autores:
+    get:
+      summary: Listar autores e os seus respetivos jogos
+      description: Retorna a lista completa de autores sem repetições, ordenada alfabeticamente, contendo os jogos associados a cada um.
+      responses:
+        '200':
+          description: Lista de autores obtida com sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    nomeAutor:
+                      type: string
+                      example: "Klaus Teuber"
+                    jogos:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/JogoSimplificado'
+        '500':
+          $ref: '#/components/responses/ErroInterno'
+
+  /jogos/categorias:
+    get:
+      summary: Listar categorias e os seus respetivos jogos
+      description: Retorna a lista completa de categorias únicas, ordenada alfabeticamente, com os jogos que pertencem a cada uma.
+      responses:
+        '200':
+          description: Lista de categorias obtida com sucesso
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    categoria:
+                      type: string
+                      example: "Family"
+                    jogos:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/JogoSimplificado'
+        '500':
+          $ref: '#/components/responses/ErroInterno'
+
+  /jogos/{id}:
+    get:
+      summary: Obter os detalhes completos de um jogo por ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: O identificador textual do jogo (ex. catan)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Detalhes do jogo encontrados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JogoCompleto'
+        '404':
+          $ref: '#/components/responses/NaoEncontrado'
+        '500':
+          $ref: '#/components/responses/ErroInterno'
+
+    put:
+      summary: Atualizar um jogo existente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: O identificador textual do jogo a atualizar
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JogoCompleto'
+      responses:
+        '200':
+          description: Jogo atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JogoCompleto'
+        '404':
+          $ref: '#/components/responses/NaoEncontrado'
+        '500':
+          $ref: '#/components/responses/ErroInterno'
+
+    delete:
+      summary: Eliminar um jogo de tabuleiro
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: O identificador textual do jogo a remover
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Jogo removido com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Removido com sucesso"
+                  jogo:
+                    $ref: '#/components/schemas/JogoCompleto'
+        '404':
+          $ref: '#/components/responses/NaoEncontrado'
+        '500':
+          $ref: '#/components/responses/ErroInterno'
+
+components:
+  responses:
+    NaoEncontrado:
+      description: O recurso solicitado não foi encontrado
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Jogo não encontrado."
+    ErroInterno:
+      description: Erro interno de processamento no servidor
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+
+  schemas:
+    # Sub-objetos reutizáveis
+    Autor:
+      type: object
+      required:
+        - _id
+        - name
+      properties:
+        _id:
+          type: string
+          example: "klaus-teuber"
+        name:
+          type: string
+          example: "Klaus Teuber"
+
+    Editora:
+      type: object
+      required:
+        - _id
+        - name
+      properties:
+        _id:
+          type: string
+          example: "kosmos"
+        name:
+          type: string
+          example: "KOSMOS"
+        country:
+          type: string
+          example: "Germany"
+
+    Mecanica:
+      type: object
+      required:
+        - _id
+        - name
+      properties:
+        _id:
+          type: string
+          example: "dice-rolling"
+        name:
+          type: string
+          example: "Dice Rolling"
+
+    Premio:
+      type: object
+      required:
+        - _id
+        - name
+      properties:
+        _id:
+          type: string
+          example: "sdj-1995"
+        name:
+          type: string
+          example: "Spiel des Jahres"
+        year:
+          type: integer
+          example: 1995
+
+    # Projeções de Saída de Listagem
+    JogoListaPadrao:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "catan"
+        name:
+          type: string
+          example: "Catan"
+        year:
+          type: integer
+          example: 1995
+        category:
+          type: string
+          example: "Family"
+        minPlayers:
+          type: integer
+          example: 3
+
+    JogoListaEditora:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: "catan"
+        name:
+          type: string
+          example: "Catan"
+        year:
+          type: integer
+          example: 1995
+
+    JogoSimplificado:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "catan"
+        name:
+          type: string
+          example: "Catan"
+
+    # Documento Completo
+    JogoCompleto:
+      type: object
+      required:
+        - _id
+        - name
+      properties:
+        _id:
+          type: string
+          example: "catan"
+        name:
+          type: string
+          example: "Catan"
+        year:
+          type: integer
+          example: 1995
+        category:
+          type: string
+          example: "Family"
+        minPlayers:
+          type: integer
+          example: 3
+        maxPlayers:
+          type: integer
+          example: 4
+        playingTimeMinutes:
+          type: integer
+          example: 120
+        descriptionEN:
+          type: string
+          example: "Players take on the roles of settlers, each attempting to build..."
+        autores:
+          type: array
+          items:
+            $ref: '#/components/schemas/Autor'
+        editoras:
+          type: array
+          items:
+            $ref: '#/components/schemas/Editora'
+        mecanicas:
+          type: array
+          items:
+            $ref: '#/components/schemas/Mecanica'
+        premios:
+          type: array
+          items:
+            $ref: '#/components/schemas/Premio'

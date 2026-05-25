@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  mongodb_ex2:
+    image: mongo
+    container_name: mongodb_ex2
+    # Sem a diretiva "ports" para não expor o Mongo ao exterior, conforme pede o enunciado
+    volumes:
+      - ../datasets:/docker-entrypoint-initdb.d
+      - ../init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh
+    environment:
+      - MONGO_INITDB_DATABASE=leituras
+      - DATABASE=leituras 
+
+  api_leituras:
+    build:
+      context: ./
+    container_name: api_leituras
+    ports:
+      - "19020:19020"
+    environment:
+      - MONGODB_URI=mongodb://mongodb_ex2:27017/leituras
+      - FRONTEND_PORT=19020
+    depends_on:
+      - mongodb_ex2
+    command: ["npm", "start"]
+
+networks:
+  default:
+    driver: bridge

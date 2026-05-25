@@ -1,0 +1,72 @@
+[
+  {
+    "titulo": "O Alquimista",
+    "autor": "Paulo Coelho",
+    "paginas": 172,
+    "genero": "Ficção",
+    "lido": true
+  },
+  {
+    "titulo": "Ensaio sobre a Cegueira",
+    "autor": "José Saramago",
+    "paginas": 312,
+    "genero": "Drama",
+    "lido": false
+  },
+  {
+    "titulo": "A Gula do Diabo",
+    "autor": "Miguel Sousa Tavares",
+    "paginas": 288,
+    "genero": "Romance",
+    "lido": true
+  },
+  {
+    "titulo": "Cem Anos de Solidão",
+    "autor": "Gabriel García Márquez",
+    "paginas": 416,
+    "genero": "Realismo Mágico",
+    "lido": false
+  },
+  {
+    "titulo": "1984",
+    "autor": "George Orwell",
+    "paginas": 328,
+    "genero": "Distopia",
+    "lido": true
+  },
+  {
+    "titulo": "O Principezinho",
+    "autor": "Antoine de Saint-Exupéry",
+    "paginas": 96,
+    "genero": "Infantil",
+    "lido": true
+  },
+  {
+    "titulo": "A Metamorfose",
+    "autor": "Franz Kafka",
+    "paginas": 104,
+    "genero": "Ficção Absurda",
+    "lido": false
+  },
+  {
+    "titulo": "O Retrato de Dorian Gray",
+    "autor": "Oscar Wilde",
+    "paginas": 256,
+    "genero": "Clássico",
+    "lido": false
+  },
+  {
+    "titulo": "O Memorial do Convento",
+    "autor": "José Saramago",
+    "paginas": 360,
+    "genero": "Romance Histórico",
+    "lido": true
+  },
+  {
+    "titulo": "Dom Quixote",
+    "autor": "Miguel de Cervantes",
+    "paginas": 864,
+    "genero": "Aventura",
+    "lido": false
+  }
+]
