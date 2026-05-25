@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const livroSchema = new mongoose.Schema({
+  // REMOVA ou comente a linha do _id para que o Mongo use o ObjectId padrão
   titulo: {
     type: String,
     required: true
@@ -19,7 +20,7 @@ const livroSchema = new mongoose.Schema({
   },
   lido: {
     type: Boolean,
-    default: false 
+    default: false
   }
 }, {
   versionKey: false

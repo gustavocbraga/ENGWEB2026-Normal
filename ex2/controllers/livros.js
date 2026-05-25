@@ -15,10 +15,19 @@ function getAll(query) {
 
 // POST /api/livros
 function create(livroData) {
-  if (!livroData._id && !livroData.id) {
-    livroData._id = crypto.randomUUID();
-  }
-  return Livro.create(livroData);
+  const novoObjeto = {
+    titulo: livroData.titulo || livroData.Titulo,
+    autor: livroData.autor || livroData.Autor,
+    // Garante que o texto do input HTML é convertido para número real
+    paginas: livroData.paginas ? parseInt(livroData.paginas, 10) : 0,
+    genero: livroData.genero || livroData.Genero,
+    lido: livroData.lido !== undefined ? livroData.lido : false
+  };
+
+  // NÃO injete o _id aqui. O MongoDB tratará disso automaticamente.
+
+  console.log("👉 ENVIANDO PARA O MONGOOSE:", novoObjeto);
+  return Livro.create(novoObjeto);
 }
 
 // PUT /api/livros/:id
